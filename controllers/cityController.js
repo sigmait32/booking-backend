@@ -1,12 +1,12 @@
 import City from '../models/cityModel.js';
-import State from '../models/StateModel.js';
+import State from '../models/stateModel.js';
 import Country from '../models/countryModel.js';
 
 
 export const createCity = async (req, res) => {
     try {
         const { name, state, country } = req.body;
-
+        // console.log("city data is =====>", req.body)
         // Check if the state and country exist
         const existingState = await State.findById(state);
         const existingCountry = await Country.findById(country);
@@ -35,7 +35,7 @@ export const createCity = async (req, res) => {
 // ✅ Get all cities (Admin & Customers)
 export const getAllCities = async (req, res) => {
     try {
-        const cities = await City.find().populate('state country', 'name');
+        const cities = await City.find().populate('state country', 'name').sort({ createdAt: -1 });;
         res.json(cities);
     } catch (error) {
         res.status(500).json({ message: "Server error", error });
@@ -54,20 +54,81 @@ export const getSingleCity = async (req, res) => {
 };
 
 // ✅ Get cities by state ID (Admin & Customers)
+// export const getCitiesByState = async (req, res) => {
+//     try {
+//         const cities = await City.find({ state: req.params.stateId }).populate('state country', 'name');
+//         if (!cities.length) return res.status(404).json({ message: "No cities found for this state" });
+//         res.json(cities);
+//     } catch (error) {
+//         res.status(500).json({ message: "Server error", error });
+//     }
+// };
+
 export const getCitiesByState = async (req, res) => {
     try {
-        const cities = await City.find({ state: req.params.stateId }).populate('state country', 'name');
-        if (!cities.length) return res.status(404).json({ message: "No cities found for this state" });
-        res.json(cities);
+        console.log("Fetching cities for state ID:", req.params.stateId);
+
+        // Find cities based on state ID
+        const cities = await City.find({ state: req.params.stateId })
+            .populate('state country', 'name')
+            .exec();
+
+        // Always return an array, even if empty
+        res.status(200).json(cities.length ? cities : []);
     } catch (error) {
+        console.error("Error fetching cities:", error);
         res.status(500).json({ message: "Server error", error });
     }
 };
+
+export const getCityByStateId = async (req, res) => {
+    try {
+        const { id } = req.params;
+        console.log("Fetching cities for state ID:", id);
+
+        // Find cities based on the given state ID
+        const cityList = await City.find({ state: req.params.id });
+
+        // If no cities exist, return an empty array (not an error)
+        if (!cityList.length) {
+            return res.status(200).json([]); // Returning [] instead of 404
+        }
+
+        // Return the list of cities
+        res.status(200).json(cityList);
+
+    } catch (error) {
+        console.error("Error fetching cities:", error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+}
+
+// export const getCityByStateId = async (req, res) => {
+//     try {
+//         console.log("Fetching states for country ID:", req.params.id);
+
+//         // Find states based on country ID
+//         const cityList = await City.find({ state: req.params.id });
+
+//         // Check if states exist
+//         if (!cityList || cityList.length === 0) {
+//             return res.status(404).json({ message: 'No cities found for this state', cityList: [] });
+//         }
+
+//         // Return the list of states
+//         res.status(200).json(cityList);
+
+//     } catch (error) {
+//         console.error("Error fetching states:", error);
+//         res.status(500).json({ message: 'Server error', error });
+//     }
+// }
 
 // ✅ Update a city (Only Admin)
 export const updateCity = async (req, res) => {
     try {
         const { name, state, country } = req.body;
+        // console.log("update city is ========>", req.body)
         const city = await City.findByIdAndUpdate(req.params.id, { name, state, country }, { new: true });
 
         if (!city) return res.status(404).json({ message: "City not found" });

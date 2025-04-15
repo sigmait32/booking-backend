@@ -13,6 +13,6 @@ const logoSchema = new Schema({
     },
 
 
-});
+}, { timestamps: true });
 
 export default model('Logo', logoSchema);  // Use export default

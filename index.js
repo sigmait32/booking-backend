@@ -22,6 +22,8 @@ import orderRoute from './routes/orderRoutes.js';
 import cartRoute from './routes/cartRoutes.js';
 import logoRoute from './routes/logoRoute.js'
 import bannerRoute from './routes/bannerRoute.js';
+import dashboardRoute from './routes/dashboardRoute.js';
+import saleEntryRoute from './routes/saleEntryRoute.js';
 
 
 
@@ -71,6 +73,8 @@ app.use("/api/cart", cartRoute);
 app.use("/api/order", orderRoute);
 app.use("/api/logo", logoRoute);
 app.use("/api/banner", bannerRoute);
+app.use("/api/dashboard", dashboardRoute);
+app.use("/api/sale", saleEntryRoute);
 
 // app.use('/api/auth', authRoutes); // Ensure this is correct
 

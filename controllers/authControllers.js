@@ -7,9 +7,35 @@ import { createToken } from '../utiles/tokenCreate.js'
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
+
+
+
+export const getEmployeeList = async (req, res) => {
+
+    console.log("get api list is")
+    try {
+        let employees = await User.find({ role: "employee" }).sort({ createdAt: -1 });
+
+        return res.status(200).json({
+            success: true,
+            message: "Employee list fetched successfully",
+            data: employees
+        });
+
+    } catch (error) {
+        console.error("Error fetching employees:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch employee list",
+            error: error.message
+        });
+    }
+};
+
+
 export const register = async (req, res) => {
     try {
-        const { fullName, email, password, mobileNo, gst_number, address } = req.body;
+        const { fullName, email, password, mobileNo, address } = req.body;
 
         const normalizedEmail = email.trim().toLowerCase();
 
@@ -28,8 +54,8 @@ export const register = async (req, res) => {
             email: normalizedEmail,
             password: hashedPassword, // Use the hashed password
             mobileNo,
-            gst_number,
             address,
+            role: "employee",
         });
 
         // Respond with success message
@@ -50,53 +76,6 @@ export const register = async (req, res) => {
         res.status(500).json({ error: 'User registration failed' }); // Send a generic error message
     }
 };
-// export const login = async (req, res) => {
-//     const { email, mobileNo, password } = req.body;
-
-//     try {
-//         // Check if either email or mobileNo is provided
-//         if (!email && !mobileNo) {
-//             return res.status(400).json({ error: 'Email or mobile number is required' });
-//         }
-
-//         // Find the user by email or mobile number
-//         const user = await User.findOne({
-//             $or: [{ email }, { mobileNo }],
-//         });
-
-//         if (!user) {
-//             return res.status(404).json({ error: 'Invalid login credentials' });
-//         }
-
-//         if (user) {
-//             const isMatch = await bcrpty.compare(password, user.password);
-
-//             if (isMatch) {
-
-//                 console.log("user is ===========>", user.id)
-//                 console.log("role is ===========>", user.role)
-//                 const token = await createToken({
-//                     id: user.id,
-//                     role: user.role
-//                 })
-//                 res.cookie('accessToken', token, {
-//                     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-//                 })
-//                 return res.status(200).json({ token, message: "Login Success" })
-//             } else {
-//                 return res.status(401).json({ error: 'Invalid password' });
-//             }
-//         }
-
-//         // If user not found
-
-
-//     } catch (err) {
-//         console.error('Error during login:', err); // Log the error for debugging
-//         res.status(500).json({ error: 'Login failed' }); // Send a generic error message
-//     }
-// };
-
 
 
 export const login = async (req, res) => {
@@ -123,8 +102,7 @@ export const login = async (req, res) => {
         }
 
         // ✅ 4. Log user details for debugging (Remove in production)
-        console.log("User ID:", user.id);
-        console.log("User Role:", user.role);
+
 
         // ✅ 5. Use createToken function
         const token = createToken({ id: user.id, role: user.role, name: user.fullName, email: user.email });
@@ -199,3 +177,80 @@ export const updateCustomerPassword = async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 }
+
+
+export const getEmployeeById = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const employee = await User.findById(id);
+
+        if (!employee) {
+            return res.status(404).json({ message: "Employee not found" });
+        }
+
+        res.status(200).json(employee);
+
+    } catch (error) {
+        console.error("Error fetching User:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+export const updateEmployee = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { fullName, email, mobileNo, password, address } = req.body;
+
+        // Find the employee by ID
+        let employee = await User.findById(id);
+
+        if (!employee) {
+            return res.status(404).json({ error: 'Employee not found' });
+        }
+        // console.log("update body is =======>", req.body)
+
+        // Hash password only if provided
+        let hashedPassword = employee.password; // Keep old password if no new password is provided
+        if (password) {
+            hashedPassword = await bcrypt.hash(password, 10);
+        }
+
+        // Update employee details
+        employee.fullName = fullName || employee.fullName;
+
+        employee.email = email || employee.email;
+        employee.mobileNo = mobileNo || employee.mobileNo;
+        employee.password = hashedPassword;
+        employee.address = address || employee.address;
+
+        // Save updated employee
+        await employee.save();
+
+        res.status(200).json({ message: 'Customer updated successfully', employee });
+    } catch (err) {
+        console.error('Error updating employee:', err);
+        res.status(500).json({ error: 'Employee update failed' });
+    }
+};
+
+
+export const deleteEmployee = async (req, res) => {
+    console.log("remove employee", req.params)
+    try {
+        const { id } = req.params;
+
+        // Find and delete the Employee by ID
+        const deletedEmployee = await User.findByIdAndDelete(id);
+
+        if (!deletedEmployee) {
+            return res.status(404).json({ message: 'Employee not found' });
+        }
+
+        res.status(200).json({ message: 'Employee deleted successfully' });
+
+    } catch (err) {
+        console.error('Error deleting Employee:', err);
+        res.status(500).json({ error: 'Employee deletion failed' });
+    }
+};

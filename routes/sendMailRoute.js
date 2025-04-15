@@ -1,5 +1,5 @@
 import express from 'express';
-import { sendEmail } from '../controllers/sendMailController.js'
+import { sendEmail, orderConfirm } from '../controllers/sendMailController.js'
 
 const router = express.Router();
 
@@ -12,6 +12,9 @@ router.get("/", (req, res) => {
 
 // POST /api/create
 router.post("/", sendEmail);
+router.post("/order-confirm-mail", orderConfirm);
+
+
 
 
 

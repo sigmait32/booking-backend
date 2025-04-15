@@ -119,7 +119,7 @@ export const createSubCategory = async (req, res) => {
     try {
         const { name, category } = req.body;
 
-        console.log("body is =>", req.body)
+        // console.log("body is =>", req.body)
 
         // Validate input
         if (!name || !category) {
@@ -156,7 +156,7 @@ export const createSubCategory = async (req, res) => {
 // Get all subcategories
 export const getAllSubCategories = async (req, res) => {
     try {
-        const subCategories = await SubCategory.find().populate('category', 'name');
+        const subCategories = await SubCategory.find().populate('category', 'name').sort({ createdAt: -1 });;
         res.status(200).json(subCategories);
     } catch (error) {
         console.error(error);

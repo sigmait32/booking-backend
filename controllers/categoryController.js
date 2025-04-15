@@ -14,7 +14,7 @@ const __dirname = path.dirname(__filename);
 
 export const categoryList = async (req, res) => {
 
-    let list = await Category.find({});
+    let list = await Category.find({}).sort({ createdAt: -1 });
     return res.status(200).json(list);
 }
 

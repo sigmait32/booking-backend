@@ -4,7 +4,10 @@ import {
     getAllOrders,
     getOrderById,
     updateOrderStatus,
-    deleteOrder
+    deleteOrder,
+    getCustomerOrderById,
+    getEmpOrderList,
+    getEmpOrdrDtl
 } from "../controllers/orderController.js";
 
 // import {createOrder} from "../controllers/orderController.js"
@@ -18,9 +21,13 @@ router.post("/create", authMiddleware, createOrder);
 
 // ✅ Get All Orders (Admin Only)
 router.get("/list", authMiddleware, roleMiddleware(["admin"]), getAllOrders);
+router.get("/get-employee-order-list", authMiddleware, roleMiddleware(['admin', "employee"]), getEmpOrderList);
 
 // ✅ Get Single Order (Admin & User)
 router.get("/:id", authMiddleware, getOrderById);
+
+router.get("/employee-order-detail/:id", authMiddleware, roleMiddleware(["employee"]), getEmpOrdrDtl);
+router.get("/customer-order/:id", authMiddleware, roleMiddleware(['admin', "employee"]), getCustomerOrderById);
 
 // ✅ Update Order Status (Admin Only)
 router.patch("/update/:id", authMiddleware, roleMiddleware(["admin"]), updateOrderStatus);

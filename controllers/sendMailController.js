@@ -31,8 +31,11 @@
 
 
 // import { sendMail } from '../utils/nodemailer.js';
+
+
 import { sendMail } from '../utiles/nodemailer.js'
-import fs from 'fs/promises';
+// import fs from 'fs/promises';
+import fs from 'fs';
 import path from 'path';
 import handlebars from 'handlebars';
 
@@ -72,3 +75,99 @@ export const sendEmail = async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 };
+
+
+
+
+
+export const orderConfirm = async (req, res) => {
+    try {
+        const {
+            email,
+            customerName,
+            customerId,
+            orderId,
+            address,
+            paymentMethod,
+            paymentStatus,
+            orderStatus,
+            orderDate,
+            shippingCharge = 0,
+            tax = 0,
+            totalBeforeDiscount = 0,
+            discount = 0,
+            totalAfterDiscount = 0,
+            products = [],
+        } = req.body;
+
+        if (!email || (!customerName && !customerId?.fullName) || !orderId) {
+            return res.status(400).json({ error: "Missing required fields" });
+        }
+
+        const finalCustomerName = customerName || customerId.fullName || "Customer";
+
+        // Load HTML template
+        const templatePath = path.join(process.cwd(), 'public', 'template', 'orderConfirmation.html');
+        const templateSource = fs.readFileSync(templatePath, 'utf8');
+        const template = handlebars.compile(templateSource);
+
+        // Generate table rows from nested product structure
+        const productTableRows = products.map((item, index) => {
+            const product = item.product || {};
+            const name = product.name || "Unnamed Product";
+            const quantity = item.quantity || 0;
+            const price = item.priceAtOrder || product.price || 0;
+            const total = (quantity * price).toFixed(2);
+
+            return `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${name}</td>
+                    <td>${quantity}</td>
+                    <td>₹${price}</td>
+                    <td>₹${total}</td>
+                </tr>
+            `;
+        }).join("");
+
+        // Compile email HTML
+        const htmlContent = template({
+            customerName: finalCustomerName,
+            orderId,
+            address,
+            orderDate,
+            paymentMethod,
+            paymentStatus,
+            orderStatus,
+            shippingCharge,
+            tax,
+            totalBeforeDiscount,
+            discount,
+            totalAfterDiscount,
+            productTable: productTableRows,
+        });
+
+        console.log("📤 Sending email to:", email);
+        console.log("🧾 Order ID:", orderId);
+        console.log("🧾 Table HTML:\n", productTableRows);
+
+        // Send the email
+        const emailResponse = await sendMail({
+            to: email,
+            subject: `🧾 Order Confirmation - ${orderId}`,
+            text: `Hi ${finalCustomerName}, your order (${orderId}) has been placed successfully.`,
+            html: htmlContent,
+        });
+
+        if (emailResponse.success) {
+            return res.status(200).json({ message: "Order confirmation email sent successfully" });
+        } else {
+            return res.status(500).json({ error: "Failed to send email" });
+        }
+
+    } catch (error) {
+        console.error("❌ Error sending order confirmation:", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+};
+

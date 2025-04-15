@@ -28,7 +28,7 @@ export const createCountry = async (req, res) => {
 // ✅ 2. Get all countries (Accessible by Admin & Customers)
 export const getAllCountries = async (req, res) => {
     try {
-        const countries = await Country.find();
+        const countries = await Country.find().sort({ createdAt: -1 });
         res.status(200).json(countries);
     } catch (error) {
         console.error('Error fetching countries:', error);

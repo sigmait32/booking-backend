@@ -8,7 +8,7 @@ import path from 'path';
 
 export const logoList = async (req, res) => {
 
-    let list = await Logo.find({});
+    let list = await Logo.find({}).sort({ createdAt: -1 });;
     return res.status(200).json(list);
 }
 
@@ -16,7 +16,7 @@ export const getLogoById = async (req, res) => {
     try {
         const { id } = req.params;
 
-        console.log("logo id is ===========>", id)
+        // console.log("logo id is ===========>", id)
         // console.log("single banner is", id)
         const logo = await Logo.findById(id);
 

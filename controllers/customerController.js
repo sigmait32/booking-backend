@@ -105,7 +105,7 @@ export const createCustomer = async (req, res) => {
 export const customerList = async (req, res) => {
     try {
         // Retrieve customers with role "customer" from the database
-        const customers = await User.find({ role: "customer" });
+        const customers = await User.find({ role: "customer" }).sort({ createdAt: -1 });
 
         res.status(200).json(customers); // Return the filtered list of customers
     } catch (err) {
@@ -155,13 +155,13 @@ export const updateCustomer = async (req, res) => {
     try {
         const { id } = req.params;
         const { fullName, email, mobileNo, password, gst_number, address, state, city } = req.body;
-
+        console.log("update body is =======>", req.body)
         // Find the customer by ID
         let customer = await User.findById(id);
         if (!customer) {
             return res.status(404).json({ error: 'Customer not found' });
         }
-        console.log("update body is =======>", req.body)
+
 
         // Hash password only if provided
         let hashedPassword = customer.password; // Keep old password if no new password is provided

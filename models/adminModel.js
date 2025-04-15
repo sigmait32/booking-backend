@@ -27,6 +27,6 @@ const adminSchema = new Schema({
         enum: ['user', 'admin', 'customer'], // roles updated to include 'customer'
         default: 'user', // default role is 'user'
     },
-})
+}, { timestamps: true })
 
 module.exports = model('admins', adminSchema)

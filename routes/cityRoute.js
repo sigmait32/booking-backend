@@ -24,7 +24,8 @@ import {
     getCitiesByState,
     getSingleCity,
     updateCity,
-    deleteCity
+    deleteCity,
+    getCityByStateId
 } from '../controllers/cityController.js';
 import { authMiddleware } from '../middlewares/authMiddleware.js';
 import { roleMiddleware } from '../middlewares/roleMiddleware.js';
@@ -39,6 +40,7 @@ router.get('/', getAllCities);
 
 // ✅ Admin & Customers can get cities by state ID
 router.get('/state/:stateId', getCitiesByState);
+router.get('/get-city-by-state/:id', getCityByStateId);
 
 // ✅ Admin & Customers can get a single city by ID
 router.get('/:id', getSingleCity);

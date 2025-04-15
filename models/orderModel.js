@@ -1,41 +1,30 @@
 
+
+
 // import mongoose from "mongoose";
 
 // const orderSchema = new mongoose.Schema(
 //     {
-//         orderId: {  // New Unique Order ID Field
-//             type: String,
-//             unique: true,
-//             required: true
-//         },
-//         user: {
-//             type: mongoose.Schema.Types.ObjectId,
-//             ref: "User",
-//             required: true
-//         },
+
+//         orderId: { type: String, unique: true, required: true }, // Unique Order ID
+//         customerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+//         employeeId: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+//         user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // Who placed the order
 //         products: [
 //             {
-//                 product: {
-//                     type: mongoose.Schema.Types.ObjectId,
-//                     ref: "Product",
-//                     required: true
-//                 },
-//                 quantity: {
-//                     type: Number,
-//                     required: true,
-//                     default: 1,
-//                     min: 1
-//                 },
-//                 priceAtOrder: {  // Store price at time of order
-//                     type: Number,
-//                     required: true
-//                 }
+//                 product: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
+//                 quantity: { type: Number, required: true },
+//                 priceAtOrder: { type: Number, required: true }
 //             }
 //         ],
-//         totalPrice: {
-//             type: Number,
-//             required: true,
-//             min: 0
+//         totalPrice: { type: Number, required: true },
+//         address: { type: String, required: true },
+//         // paymentMethod: { type: String, enum: ["Cash on Delivery", "Credit", "Debit", "UPI", "Net Banking"], required: true },
+//         paymentMethod: {  // Fixed to Only "Cash on Delivery"
+//             type: String,
+//             enum: ["Cash on Delivery", "Credit", "Debit", "UPI", "Net Banking"],
+//             default: "Cash on Delivery",
+//             // required: true
 //         },
 //         status: {
 //             type: String,
@@ -52,28 +41,14 @@
 //             ],
 //             default: "Pending",
 //         },
-//         address: {
-//             type: mongoose.Schema.Types.ObjectId,
-//             ref: "Address",
-//             required: true
-//         },
-//         paymentMethod: {  // Fixed to Only "Cash on Delivery"
-//             type: String,
-//             enum: ["Cash on Delivery"],
-//             default: "Cash on Delivery",
-//             required: true
-//         },
-//         paymentStatus: {
-//             type: String,
-//             enum: ["Pending", "Dispatched", "Delivered", "Cancelled", "Refunded"],
-//             default: "Pending"
-//         }
+//         // status: { type: String, enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"], default: "Pending" },
+//         paymentStatus: { type: String, enum: ["Pending", "Paid", "Failed"], default: "Pending" }
 //     },
-//     { timestamps: true }
+//     { timestamps: true } // ✅ Automatically adds createdAt and updatedAt
 // );
 
-// const Order = mongoose.model("Order", orderSchema);
-// export default Order;
+// export default mongoose.model("Order", orderSchema);
+
 
 
 import mongoose from "mongoose";
@@ -93,6 +68,31 @@ const orderSchema = new mongoose.Schema(
             }
         ],
         totalPrice: { type: Number, required: true },
+        discount: {
+            type: Number,
+            default: 0
+        },
+
+        shipping: {
+            type: Number,
+            default: 0
+        },
+
+        tax: {
+            type: Number,
+            default: 0
+        },
+
+        totalBeforeDiscount: {
+            type: Number,
+            required: true
+        },
+
+        totalAfterDiscount: {
+            type: Number,
+            required: true
+        },
+
         address: { type: String, required: true },
         // paymentMethod: { type: String, enum: ["Cash on Delivery", "Credit", "Debit", "UPI", "Net Banking"], required: true },
         paymentMethod: {  // Fixed to Only "Cash on Delivery"
@@ -123,3 +123,4 @@ const orderSchema = new mongoose.Schema(
 );
 
 export default mongoose.model("Order", orderSchema);
+

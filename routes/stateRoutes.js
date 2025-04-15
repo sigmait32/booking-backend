@@ -1,10 +1,11 @@
 import express from 'express';
-import { 
-    createState, 
-    getAllStates, 
-    getStateById, 
-    updateState, 
-    deleteState 
+import {
+    createState,
+    getAllStates,
+    getStateById,
+    updateState,
+    deleteState,
+    getStateByCountryId
 } from '../controllers/stateController.js';
 
 const router = express.Router();
@@ -17,6 +18,8 @@ router.get('/', getAllStates);
 
 // ✅ Get a state by ID
 router.get('/:id', getStateById);
+router.get('/get-state-by-country/:id', getStateByCountryId);
+
 
 // ✅ Update a state
 router.put('/:id', updateState);

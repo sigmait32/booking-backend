@@ -1,14 +1,14 @@
 import { Schema, model } from 'mongoose'; // Use import for mongoose
 
 const bannerSchema = new Schema({
-   
+
 
     title: {
         type: String,
         unique: true,
         required: true
     },
-   
+
     description: {
         type: String
     },
@@ -17,6 +17,6 @@ const bannerSchema = new Schema({
     },
 
 
-});
+}, { timestamps: true });
 
 export default model('Banner', bannerSchema);  // Use export default
