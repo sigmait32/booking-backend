@@ -13,7 +13,7 @@ router.get("/", (req, res) => {
 });
 
 // POST /api/create
-router.post("/register", authMiddleware, roleMiddleware(['admin']), register);
+router.post("/register", register);
 
 router.post("/login", login);
 router.post("/change-password", authMiddleware, roleMiddleware(['admin']), changePassword);
